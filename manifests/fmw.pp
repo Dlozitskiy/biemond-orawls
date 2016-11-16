@@ -123,50 +123,46 @@ define orawls::fmw(
 
     # Prepre java command line options
  
-    if $version == 1212 or $version == 1213 or $version >= 1221 {
+    $install = "java -Djava.io.tmpdir=${temp_directory} -jar "
     
-        $install = "java -Djava.io.tmpdir=${temp_directory} -jar "
-    
-        # Install SOA
+    # Install SOA
 
-        if ( $fmw_product == 'soa' ) {
+    if ( $fmw_product == 'soa' ) {
 
-        exec { "install ${sanitised_title}":
-        command     => "${install}${download_dir}/${fmw_file} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs -jreLoc ${jdk_home_dir}",
-        environment => "TEMP=${temp_directory}",
-        timeout     => 0,
-        creates     => "${middleware_home_dir}/soa",
-        cwd         => $temp_directory,
-        path        => $exec_path,
-        user        => $os_user,
-        group       => $os_group,
-        logoutput   => $log_output,
-        require     => [File["${download_dir}/${sanitised_title}_silent.rsp"],
-                        Orawls::Utils::Orainst["create oraInst for ${name}"],
-                        File["${download_dir}/${fmw_file}"],],
-        } 
+    exec { "install ${sanitised_title}":
+    command     => "${install}${download_dir}/${fmw_file} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs -jreLoc ${jdk_home_dir}",
+    environment => "TEMP=${temp_directory}",
+    timeout     => 0,
+    creates     => "${middleware_home_dir}/soa",
+    cwd         => $temp_directory,
+    path        => $exec_path,
+    user        => $os_user,
+    group       => $os_group,
+    logoutput   => $log_output,
+    require     => [File["${download_dir}/${sanitised_title}_silent.rsp"],
+                   Orawls::Utils::Orainst["create oraInst for ${name}"],
+                   File["${download_dir}/${fmw_file}"],],
       } 
+    } 
 
-        # Install OSB
+    # Install OSB
 
-        elsif ( $fmw_product == 'osb' ) {
+    elsif ( $fmw_product == 'osb' ) {
 
-        exec { "install ${sanitised_title}":
-        command     => "${install}${download_dir}/${fmw_file} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs -jreLoc ${jdk_home_dir}",
-        environment => "TEMP=${temp_directory}",
-        timeout     => 0,
-        creates     => "${middleware_home_dir}/osb",
-        cwd         => $temp_directory,
-        path        => $exec_path,
-        user        => $os_user,
-        group       => $os_group,
-        logoutput   => $log_output,
-        require     => [File["${download_dir}/${sanitised_title}_silent.rsp"],
-                        Orawls::Utils::Orainst["create oraInst for ${name}"],
-                        File["${download_dir}/${fmw_file}"],],
+    exec { "install ${sanitised_title}":
+    command     => "${install}${download_dir}/${fmw_file} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs -jreLoc ${jdk_home_dir}",
+    environment => "TEMP=${temp_directory}",
+    timeout     => 0,
+    creates     => "${middleware_home_dir}/osb",
+    cwd         => $temp_directory,
+    path        => $exec_path,
+    user        => $os_user,
+    group       => $os_group,
+    logoutput   => $log_output,
+    require     => [File["${download_dir}/${sanitised_title}_silent.rsp"],
+                    Orawls::Utils::Orainst["create oraInst for ${name}"],
+                    File["${download_dir}/${fmw_file}"],],
 
       }
-     }
     }
-  }
 }
