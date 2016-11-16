@@ -23,6 +23,7 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
     ownened_by_oracle ora_inventory, user, group
 
     make_directory download_folder
+    ownened_by_oracle download_folder, user, group
     allow_everybody download_folder
 
     unless domains_dir.nil?
