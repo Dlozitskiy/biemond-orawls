@@ -44,7 +44,7 @@ class orawls::os (
     ensure  => present,
   }
 
-# Remove Open JDK packages
+# Remove any conflicts packages
 
   package { $os_packages_rm:
     ensure  => absent,

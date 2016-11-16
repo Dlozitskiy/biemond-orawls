@@ -4,7 +4,7 @@
 #
 ##
 define orawls::fmw(
-  $version              = hiera('wls_version', 1111),        # 1036|1111|1211|1212|1213|1221|12211
+  $version              = hiera('wls_version', 12211),       # 1213|1221|12211
   $weblogic_home_dir    = hiera('wls_weblogic_home_dir'),    # /opt/oracle/middleware11gR1/wlserver_103
   $middleware_home_dir  = hiera('wls_middleware_home_dir'),  # /opt/oracle/middleware11gR1
   $oracle_base_home_dir = hiera('wls_oracle_base_home_dir'), # /opt/oracle
@@ -17,7 +17,7 @@ define orawls::fmw(
   $download_dir         = hiera('wls_download_dir'),         # /data/install
   $source               = hiera('wls_source', undef),        # puppet:///modules/orawls/ | /mnt | /vagrant
   $remote_file          = true,                              # true|false
-  $log_output           = true,                             # true|false
+  $log_output           = true,                              # true|false
   $temp_directory       = hiera('wls_temp_dir','/tmp'),      # /tmp directory
   $ohs_mode             = hiera('ohs_mode', 'collocated'),
   $oracle_inventory_dir = undef,
@@ -36,8 +36,9 @@ define orawls::fmw(
         $oraInstPath = '/etc'
       } 
 
-  #Sanitise the resource title so that it can safely be used in filenames and execs etc.
+  #Sanitise the resource title so that it can safely be used in filenames and execs
   #After converting all spaces to underscores, remove all non alphanumeric characters (allow hypens and underscores too)
+
   $convert_spaces_to_underscores = regsubst($title,'\s','_','G')
   $sanitised_title = regsubst ($convert_spaces_to_underscores,'[^a-zA-Z0-9_-]','','G')
 
@@ -77,30 +78,12 @@ define orawls::fmw(
     }
   }
   
-  # check if the oracle home already exists, only for < 12.1.2, this is for performance reasons
-  if $version == 1212 or $version == 1213 or $version >= 1221 {
-    $continue = true
-  } else {
-    $found = orawls_oracle_exists($oracle_base_home_dir)
-
-    if $found == undef {
-      $continue = true
-    } else {
-      if ($found) {
-        $continue = false
-      } else {
-        notify { "orawls::fmw ${oracle_base_home_dir} does not exists": }
-        $continue = true
-      }
-    }
-  }
-
-  if ($continue) {
-
     orawls::utils::orainst { "create oraInst for ${name}":
       ora_inventory_dir => $oraInventory,
       os_group          => $os_group,
     }
+
+    # Create response file
 
     file { "${download_dir}/${sanitised_title}_silent.rsp":
       ensure  => present,
@@ -112,7 +95,8 @@ define orawls::fmw(
       require => Orawls::Utils::Orainst["create oraInst for ${name}"],
     }
 
-    # for performance reasons, download and extract or just extract it
+    # Download remote file
+
     if $remote_file == true {
       file { "${download_dir}/${fmw_file}":
         ensure => file,
@@ -128,17 +112,23 @@ define orawls::fmw(
       $disk1_file = "${source}/${fmw_file}"
     }
 
+    # Prepre execution command line
+
     if $version >= 1221 {
       $command = "-silent -responseFile ${download_dir}/${sanitised_title}_silent.rsp"
     }
     else {
       $command = "-silent -response ${download_dir}/${sanitised_title}_silent.rsp -waitforcompletion"
     }
+
+    # Prepre java command line options
  
     if $version == 1212 or $version == 1213 or $version >= 1221 {
     
         $install = "java -Djava.io.tmpdir=${temp_directory} -jar "
-     
+    
+        # Install SOA
+
         if ( $fmw_product == 'soa' ) {
 
         exec { "install ${sanitised_title}":
@@ -155,7 +145,11 @@ define orawls::fmw(
                         Orawls::Utils::Orainst["create oraInst for ${name}"],
                         File["${download_dir}/${fmw_file}"],],
         } 
-      } elsif ( $fmw_product == 'osb' ) {
+      } 
+
+        # Install OSB
+
+        elsif ( $fmw_product == 'osb' ) {
 
         exec { "install ${sanitised_title}":
         command     => "${install}${download_dir}/${fmw_file} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs -jreLoc ${jdk_home_dir}",
