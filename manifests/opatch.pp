@@ -43,6 +43,7 @@ define orawls::opatch(
     } else {
       $disk1_file = "${source}/${patch_file}"
     }
+  }
 
   if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
      $oraInstPath = '/etc'
