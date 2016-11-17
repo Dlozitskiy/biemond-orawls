@@ -166,7 +166,7 @@ define orawls::weblogic_type (
     path        => $exec_path,
     user        => $os_user,
     group       => $os_group,
-    require     => [Wls_directory_structure["weblogic structure ${title}"],
+    require     => [File["${middleware_home_dir}"],
                    Orawls::Utils::Orainst["weblogic orainst ${title}"],
                    File["${download_dir}/weblogic_silent_install_${title}.xml"]],
   }
