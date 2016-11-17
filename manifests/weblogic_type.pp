@@ -112,7 +112,7 @@ define orawls::weblogic_type (
   }
 
   orawls::utils::orainst { "weblogic orainst ${title}":
-    ora_inventory_dir => $oraInventory,
+    ora_inventory_dir => $ora_inventory_dir,
     os_group          => $os_group,
   }
 
