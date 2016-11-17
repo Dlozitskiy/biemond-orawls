@@ -6,8 +6,6 @@
 ##
 define orawls::utils::orainst
 (
-  $ora_inventory_dir = undef,
-  $os_group          = undef,
   $orainstpath_dir   = hiera('orainstpath_dir', undef),
 )
 {
