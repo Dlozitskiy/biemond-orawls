@@ -36,6 +36,7 @@ define orawls::weblogic_type (
         $domains_dir =  $wls_domains_dir
     }
   }
+
   if ( $wls_apps_dir != undef) {
     # make sure you don't create the middleware home, else root will be owner
     if ($wls_apps_dir == "${middleware_home_dir}/user_projects/applications") {
@@ -183,35 +184,20 @@ define orawls::weblogic_type (
     $created_dir = $middleware_home_dir
   }
 
-  if ($version == 1212 or $version == 1213 or $version >= 1221 ) {
-
-    $command = "-silent -responseFile ${download_dir}/weblogic_silent_install_${title}.xml ${validation_string} ${force_string} "
+  $command = "-silent -responseFile ${download_dir}/weblogic_silent_install_${title}.xml ${validation_string} ${force_string} "
 
     # notify { "install weblogic ${version}: ${exec_path}": }
-    exec { "install weblogic ${title}":
-      command     => "${cmd_prefix}${weblogic_jar_location} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs",
-      environment => ['JAVA_VENDOR=Sun', "JAVA_HOME=${jdk_home_dir}"],
-      timeout     => 0,
-      creates     => $created_dir,
-      path        => $exec_path,
-      user        => $os_user,
-      group       => $os_group,
-      require     => [Wls_directory_structure["weblogic structure ${title}"],
-                      Orawls::Utils::Orainst["weblogic orainst ${title}"],
-                      File["${download_dir}/weblogic_silent_install_${title}.xml"]],
-    }
-
-  } else {
-    exec {"install weblogic ${title}":
-      command     => "${cmd_prefix}${weblogic_jar_location} -Djava.io.tmpdir=${temp_directory} -Duser.country=US -Duser.language=en -mode=silent ${validation_string} ${force_string} -log=${temp_directory}/wls_${title}.out -log_priority=info -silent_xml=${download_dir}/weblogic_silent_install_${title}.xml",
-      environment => ['JAVA_VENDOR=Sun',"JAVA_HOME=${jdk_home_dir}"],
-      creates     => $created_dir,
-      timeout     => 0,
-      path        => $exec_path,
-      user        => $os_user,
-      group       => $os_group,
-      require     => [Wls_directory_structure["weblogic structure ${title}"],
-                      File["${download_dir}/weblogic_silent_install_${title}.xml"]],
-    }
+  exec { "install weblogic ${title}":
+    command     => "${cmd_prefix}${weblogic_jar_location} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs",
+    environment => ['JAVA_VENDOR=Sun', "JAVA_HOME=${jdk_home_dir}"],
+    timeout     => 0,
+    creates     => $created_dir,
+    path        => $exec_path,
+    user        => $os_user,
+    group       => $os_group,
+    require     => [Wls_directory_structure["weblogic structure ${title}"],
+                   Orawls::Utils::Orainst["weblogic orainst ${title}"],
+                   File["${download_dir}/weblogic_silent_install_${title}.xml"]],
   }
+
 }
