@@ -12,7 +12,7 @@ define orawls::opatch(
   $os_user                 = hiera('wls_os_user'), # oracle
   $os_group                = hiera('wls_os_group'), # dba
   $download_dir            = hiera('wls_download_dir'), # /data/install
-  $source                  = hiera('wls_source', undef), # puppet:///modules/orawls/ | /mnt | /vagrant
+  $source                  = hiera('opatch_source', undef), # puppet:///modules/orawls/ | /mnt | /vagrant
   $remote_file             = true,  # true|false
   $log_output              = false, # true|false
   $orainstpath_dir         = hiera('orainstpath_dir', undef),
