@@ -132,7 +132,7 @@ define orawls::weblogic_type (
       owner   => $os_user,
       group   => $os_group,
       before  => Exec["install weblogic ${title}"],
-      require => Wls_directory_structure["weblogic structure ${title}"],
+      require => File["${middleware_home_dir}"],
     }
   }
 
@@ -145,7 +145,7 @@ define orawls::weblogic_type (
     owner   => $os_user,
     group   => $os_group,
     backup  => false,
-    require => Wls_directory_structure["weblogic structure ${title}"],
+    require => File["${middleware_home_dir}"],
   }
 
   # if weblogic home dir is specified then check that for creates
