@@ -52,7 +52,7 @@ class orawls::os (
 
 # Create parent folder
 
-   file { ["${os_bin_root}","${os_bin_root}/app"]:
+   file { ["${os_bin_root}"]:
     owner  => $os_user,
     group  => $os_group,
     mode   => "775",
