@@ -74,24 +74,14 @@ define orawls::weblogic_type (
     logoutput => $log_output,
   }
 
-  case $::kernel {
-    'Linux': {
-      if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
-        $oraInstPath = '/etc'
-      } else {
-        $oraInstPath = $orainstpath_dir
-      }
-      $java_statement     = "java ${java_parameters}"
-    }
-    'SunOS': {
-      $oraInstPath       = '/var/opt/oracle'
-      $java_statement    = "java -d64 ${java_parameters}"
-    }
-    default: {
-      fail("Unrecognized operating system ${::kernel}, please use it on a Linux host")
-    }
+  if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
+    $oraInstPath = '/etc'
+  } else {
+    $oraInstPath = $orainstpath_dir
   }
 
+  $java_statement     = "java ${java_parameters}"
+    
   if $source == undef {
     $mountPoint = 'puppet:///modules/orawls/'
   } else {
@@ -129,7 +119,6 @@ define orawls::weblogic_type (
   } else {
     $force_string = ''
   }
-
 
   $oraInventory  = "${oracle_base_home_dir}/oraInventory"
 
