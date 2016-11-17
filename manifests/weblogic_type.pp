@@ -6,8 +6,6 @@ define orawls::weblogic_type (
   $oracle_base_home_dir = undef, # /opt/oracle
   $middleware_home_dir  = undef, # /opt/oracle/middleware11gR1
   $weblogic_home_dir    = undef, # /opt/oracle/middleware11gR1/wlserver
-  $wls_domains_dir      = undef, # /opt/oracle/wlsdomains/domains
-  $wls_apps_dir         = undef, # /opt/oracle/wlsdomains/applications
   $fmw_infra            = false, # true|false 1212/1213/1221 option -> plain weblogic or fmw infra
   $jdk_home_dir         = undef, # /usr/java/jdk1.7.0_45
   $os_user              = undef, # oracle
@@ -123,8 +121,6 @@ define orawls::weblogic_type (
     oracle_base_dir       => $oracle_base_home_dir,
     ora_inventory_dir     => $ora_inventory_dir,
     download_dir          => $download_dir,
-    wls_domains_dir       => $domains_dir,
-    wls_apps_dir          => $apps_dir,
     os_user               => $os_user,
     os_group              => $os_group,
   }

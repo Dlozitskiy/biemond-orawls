@@ -52,18 +52,6 @@ module Puppet
       end
     end
 
-    newparam(:wls_domains_dir) do
-      desc <<-EOT
-        The oracle weblogic domains folder.
-      EOT
-    end
-
-    newparam(:wls_apps_dir) do
-      desc <<-EOT
-        The oracle weblogic apps folder.
-      EOT
-    end
-
     newparam(:download_dir) do
       desc <<-EOT
         The download folder.

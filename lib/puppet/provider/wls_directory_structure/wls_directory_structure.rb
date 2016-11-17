@@ -10,23 +10,10 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
     user            = resource[:os_user]
     group           = resource[:os_group]
 
-    domains_dir     = resource[:wls_domains_dir]
-    apps_dir        = resource[:wls_apps_dir]
-
     Puppet.info "configure oracle folders for #{name}"
 
     Puppet.info "create the following directories: #{oracle_base}, #{ora_inventory}, #{download_folder}"
     
-    unless domains_dir.nil?
-      make_directory domains_dir
-      ownened_by_oracle domains_dir, user, group
-    end
-
-    unless apps_dir.nil?
-      make_directory apps_dir
-      ownened_by_oracle apps_dir, user, group
-    end
-
     make_directory oracle_base
     ownened_by_oracle oracle_base, user, group
 
