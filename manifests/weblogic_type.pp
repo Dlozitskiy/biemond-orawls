@@ -191,7 +191,7 @@ define orawls::weblogic_type (
     command     => "${cmd_prefix}${weblogic_jar_location} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs",
     environment => ['JAVA_VENDOR=Sun', "JAVA_HOME=${jdk_home_dir}"],
     timeout     => 0,
-    creates     => $created_dir,
+    creates     => "${created_dir}/wlserver",
     path        => $exec_path,
     user        => $os_user,
     group       => $os_group,
