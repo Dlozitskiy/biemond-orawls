@@ -6,16 +6,18 @@
 ##
 define orawls::utils::orainst
 (
+  $ora_inventory_dir = undef,
+  $os_group          = undef,
   $orainstpath_dir   = hiera('orainstpath_dir', undef),
 )
 {
- 
-  if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
-      $oraInstPath = '/etc'
-     } else {
+  
+      if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
+        $oraInstPath = '/etc'
+      } else {
         $oraInstPath = $orainstpath_dir
-     }
-
+      }
+ 
   if !defined(File["${oraInstPath}/oraInst.loc"]) {
     file { "${oraInstPath}/oraInst.loc":
       ensure  => present,

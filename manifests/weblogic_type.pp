@@ -111,7 +111,10 @@ define orawls::weblogic_type (
     $force_string = ''
   }
 
-  orawls::utils::orainst { "weblogic orainst ${title}":}
+  orawls::utils::orainst { "weblogic orainst ${title}":
+    ora_inventory_dir => $oraInventory,
+    os_group          => $os_group,
+  }
 
   wls_directory_structure{"weblogic structure ${title}":
     ensure                => present,
