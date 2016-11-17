@@ -20,8 +20,9 @@ module Puppet
         oracle_base     = resource[:oracle_base_dir]
         ora_inventory   = resource[:ora_inventory_dir]
         download_folder = resource[:download_dir]
+        middleware_home = resource[:ora_middleware_home]
 
-        if File.exist?(oracle_base) && File.exist?(ora_inventory) && File.exist?(download_folder)
+        if File.exist?(oracle_base) && File.exist?(ora_inventory) && File.exist?(download_folder) && File.exist?(download_folder)
           :present
         else
           :absent
