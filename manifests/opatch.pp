@@ -16,9 +16,9 @@ define orawls::opatch(
   $remote_file             = true,  # true|false
   $log_output              = false, # true|false
   $orainstpath_dir         = hiera('orainstpath_dir', undef),
+  $temp_directory          = hiera('wls_temp_dir', undef),
 )
 {
-  # $exec_path = '/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:'
 
   if $source == undef {
     $mountPoint = 'puppet:///modules/orawls/'
@@ -37,7 +37,6 @@ define orawls::opatch(
           owner  => $os_user,
           group  => $os_group,
           before => Wls_opatch["${oracle_product_home_dir}:${patch_id}"],
-#         before => Exec["extract opatch ${patch_file} ${title}"],
         }
       }
       $disk1_file = "${download_dir}/${patch_file}"
@@ -45,34 +44,11 @@ define orawls::opatch(
       $disk1_file = "${source}/${patch_file}"
     }
 
-    # exec { "extract opatch ${patch_file} ${title}":
-    #   command   => "unzip -n ${disk1_file} -d ${download_dir}",
-    #   creates   => "${download_dir}/${patch_id}",
-    #   path      => $exec_path,
-    #   user      => $os_user,
-    #   group     => $os_group,
-    #   logoutput => false,
-    #   before    => Opatch["${patch_id} ${title}"],
-    # }
-  } else {
-    $disk1_file = undef
-  }
-
-  case $::kernel {
-    'Linux': {
       if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
         $oraInstPath = '/etc'
       } else {
         $oraInstPath = $orainstpath_dir
       }
-    }
-    'SunOS': {
-      $oraInstPath = '/var/opt/oracle'
-    }
-    default: {
-      fail("Unrecognized operating system ${::kernel}, please use it on a Linux host")
-    }
-  }
 
   wls_opatch{"${oracle_product_home_dir}:${patch_id}":
     ensure       => $ensure,
@@ -80,17 +56,7 @@ define orawls::opatch(
     source       => $disk1_file,
     jdk_home_dir => $jdk_home_dir,
     orainst_dir  => $oraInstPath,
-    tmp_dir      => $download_dir,
+    tmp_dir      => $temp_directory,
   }
-
-  # opatch{ "${patch_id} ${title}":
-  #   ensure                  => $ensure,
-  #   patch_id                => $patch_id,
-  #   os_user                 => $os_user,
-  #   oracle_product_home_dir => $oracle_product_home_dir,
-  #   orainst_dir             => $oraInstPath,
-  #   jdk_home_dir            => $jdk_home_dir,
-  #   extracted_patch_dir     => "${download_dir}/${patch_id}",
-  # }
 
 }
