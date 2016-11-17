@@ -52,6 +52,17 @@ module Puppet
       end
     end
 
+    newparam(:ora_middleware_home) do
+      desc <<-EOT
+        The middleware home folder.
+      EOT
+      validate do |value|
+        if value.nil?
+          fail ArgumentError, 'ora_middleware_home cannot be empty'
+        end
+      end
+    end
+
     newparam(:download_dir) do
       desc <<-EOT
         The download folder.

@@ -6,16 +6,20 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
     name            = resource[:name]
     oracle_base     = resource[:oracle_base_dir]
     ora_inventory   = resource[:ora_inventory_dir]
+    middleware_home = resource[:ora_middleware_home]
     download_folder = resource[:download_dir]
     user            = resource[:os_user]
     group           = resource[:os_group]
 
     Puppet.info "configure oracle folders for #{name}"
 
-    Puppet.info "create the following directories: #{oracle_base}, #{ora_inventory}, #{download_folder}"
+    Puppet.info "create the following directories: #{oracle_base}, #{middleware_home}, #{ora_inventory}, #{download_folder}"
     
     make_directory oracle_base
     ownened_by_oracle oracle_base, user, group
+
+    make_directory middleware_home
+    ownened_by_oracle middleware_home, user, group
 
     make_directory ora_inventory
     ownened_by_oracle ora_inventory, user, group
