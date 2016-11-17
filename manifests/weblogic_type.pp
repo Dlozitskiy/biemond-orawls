@@ -6,8 +6,8 @@ define orawls::weblogic_type (
   $oracle_base_home_dir = undef, # /opt/oracle
   $middleware_home_dir  = undef, # /opt/oracle/middleware11gR1
   $weblogic_home_dir    = undef, # /opt/oracle/middleware11gR1/wlserver
-  $wls_domains_dir      = hiera('wls_domains_dir', undef), # /opt/oracle/wlsdomains/domains
-  $wls_apps_dir         = hiera('wls_apps_dir', undef), # /opt/oracle/wlsdomains/applications
+  $wls_domains_dir      = undef, # /opt/oracle/wlsdomains/domains
+  $wls_apps_dir         = undef, # /opt/oracle/wlsdomains/applications
   $fmw_infra            = false, # true|false 1212/1213/1221 option -> plain weblogic or fmw infra
   $jdk_home_dir         = undef, # /usr/java/jdk1.7.0_45
   $os_user              = undef, # oracle
@@ -28,7 +28,23 @@ define orawls::weblogic_type (
     fail('please provide all the required parameters')
   }
 
-   if ( $fmw_infra == true ) {
+  if ( $wls_domains_dir != undef) {
+    if ($wls_domains_dir == "${middleware_home_dir}/user_projects/domains") {
+        $domains_dir =  undef
+    } else {
+        $domains_dir =  $wls_domains_dir
+    }
+  }
+
+  if ( $wls_apps_dir != undef) {
+    if ($wls_apps_dir == "${middleware_home_dir}/user_projects/applications") {
+        $apps_dir =  undef
+    } else {
+        $apps_dir =  $wls_apps_dir
+    }
+  }
+
+  if ( $fmw_infra == true ) {
     $install_type='Fusion Middleware Infrastructure'
    } else {
     $install_type='WebLogic Server'
@@ -102,22 +118,15 @@ define orawls::weblogic_type (
     os_group          => $os_group,
   }
 
-#  wls_directory_structure{"weblogic structure ${title}":
-#    ensure                => present,
-#    oracle_base_dir       => $oracle_base_home_dir,
-#    ora_inventory_dir     => $ora_inventory_dir,
-#    download_dir          => $download_dir,
-#    wls_domains_dir       => $domains_dir,
-#    wls_apps_dir          => $apps_dir,
-#    os_user               => $os_user,
-#    os_group              => $os_group,
-#  }
-
-  file { ["${oracle_base_home_dir}","${middleware_home_dir}","${wls_domains_dir}","${wls_apps_dir}"]:
-    owner  => $os_user,
-    group  => $os_group,
-    mode   => "775",
-    ensure => "directory",
+  wls_directory_structure{"weblogic structure ${title}":
+    ensure                => present,
+    oracle_base_dir       => $oracle_base_home_dir,
+    ora_inventory_dir     => $ora_inventory_dir,
+    download_dir          => $download_dir,
+    wls_domains_dir       => $domains_dir,
+    wls_apps_dir          => $apps_dir,
+    os_user               => $os_user,
+    os_group              => $os_group,
   }
 
   # for performance reasons, download and install or just install it
@@ -132,7 +141,7 @@ define orawls::weblogic_type (
       owner   => $os_user,
       group   => $os_group,
       before  => Exec["install weblogic ${title}"],
-      require => File["${middleware_home_dir}"],
+      require => Wls_directory_structure["weblogic structure ${title}"],
     }
   }
 
@@ -145,14 +154,7 @@ define orawls::weblogic_type (
     owner   => $os_user,
     group   => $os_group,
     backup  => false,
-    require => File["${middleware_home_dir}"],
-  }
-
-  # if weblogic home dir is specified then check that for creates
-  if ( $weblogic_home_dir != undef ) {
-    $created_dir = $weblogic_home_dir
-  } else {
-    $created_dir = $middleware_home_dir
+    require => Wls_directory_structure["weblogic structure ${title}"],
   }
 
   $command = "-silent -responseFile ${download_dir}/weblogic_silent_install_${title}.xml ${validation_string} ${force_string} "
@@ -162,11 +164,11 @@ define orawls::weblogic_type (
     command     => "${cmd_prefix}${weblogic_jar_location} ${command} -invPtrLoc ${oraInstPath}/oraInst.loc -ignoreSysPrereqs",
     environment => ['JAVA_VENDOR=Sun', "JAVA_HOME=${jdk_home_dir}"],
     timeout     => 0,
-    creates     => "${created_dir}/wlserver",
+    creates     => "${middleware_home_dir}/wlserver",
     path        => $exec_path,
     user        => $os_user,
     group       => $os_group,
-    require     => [File["${middleware_home_dir}"],
+    require     => [Wls_directory_structure["weblogic structure ${title}"],
                    Orawls::Utils::Orainst["weblogic orainst ${title}"],
                    File["${download_dir}/weblogic_silent_install_${title}.xml"]],
   }
