@@ -6,8 +6,8 @@ define orawls::weblogic_type (
   $oracle_base_home_dir = undef, # /opt/oracle
   $middleware_home_dir  = undef, # /opt/oracle/middleware11gR1
   $weblogic_home_dir    = undef, # /opt/oracle/middleware11gR1/wlserver
-  $wls_domains_dir      = undef, # /opt/oracle/wlsdomains/domains
-  $wls_apps_dir         = undef, # /opt/oracle/wlsdomains/applications
+  $wls_domains_dir      = hiera('wls_domains_dir', undef), # /opt/oracle/wlsdomains/domains
+  $wls_apps_dir         = hiera('wls_apps_dir', undef), # /opt/oracle/wlsdomains/applications
   $fmw_infra            = false, # true|false 1212/1213/1221 option -> plain weblogic or fmw infra
   $jdk_home_dir         = undef, # /usr/java/jdk1.7.0_45
   $os_user              = undef, # oracle
@@ -28,44 +28,19 @@ define orawls::weblogic_type (
     fail('please provide all the required parameters')
   }
 
-  if ( $wls_domains_dir != undef) {
-    # make sure you don't create the middleware home, else root will be owner
-    if ($wls_domains_dir == "${middleware_home_dir}/user_projects/domains") {
-        $domains_dir =  undef
-    } else {
-        $domains_dir =  $wls_domains_dir
-    }
+   if ( $fmw_infra == true ) {
+    $install_type='Fusion Middleware Infrastructure'
+   } else {
+    $install_type='WebLogic Server'
+   }
+  
+  if $version >= 1221 {
+    $new_version = 1221
+  } else {
+    $new_version = $version
   }
-
-  if ( $wls_apps_dir != undef) {
-    # make sure you don't create the middleware home, else root will be owner
-    if ($wls_apps_dir == "${middleware_home_dir}/user_projects/applications") {
-        $apps_dir =  undef
-    } else {
-        $apps_dir =  $wls_apps_dir
-    }
-  }
-
-  if ($version == 1036 or $version == 1111 or $version == 1211) {
-    $silent_template = 'orawls/weblogic_silent_install.xml.erb'
-  } elsif ( $version == 1212 or $version == 1213 or $version >= 1221 ) {
-
-    #The oracle home location. This can be an existing Oracle Home or a new Oracle Home
-    if ( $fmw_infra == true ) {
-      $install_type='Fusion Middleware Infrastructure'
-    } else {
-      $install_type='WebLogic Server'
-    }
-    if $version >= 1221 {
-      $new_version = 1221
-    } else {
-      $new_version = $version
-    }
-    $silent_template = "orawls/weblogic_silent_install_${new_version}.rsp.erb"
-
-  } else  {
-    fail('unknown weblogic version parameter')
-  }
+  
+  $silent_template = "orawls/weblogic_silent_install_${new_version}.rsp.erb"
 
   $exec_path         = "${jdk_home_dir}/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:"
   $ora_inventory_dir = "${oracle_base_home_dir}/oraInventory"
@@ -127,15 +102,22 @@ define orawls::weblogic_type (
     os_group          => $os_group,
   }
 
-  wls_directory_structure{"weblogic structure ${title}":
-    ensure                => present,
-    oracle_base_dir       => $oracle_base_home_dir,
-    ora_inventory_dir     => $ora_inventory_dir,
-    download_dir          => $download_dir,
-    wls_domains_dir       => $domains_dir,
-    wls_apps_dir          => $apps_dir,
-    os_user               => $os_user,
-    os_group              => $os_group,
+#  wls_directory_structure{"weblogic structure ${title}":
+#    ensure                => present,
+#    oracle_base_dir       => $oracle_base_home_dir,
+#    ora_inventory_dir     => $ora_inventory_dir,
+#    download_dir          => $download_dir,
+#    wls_domains_dir       => $domains_dir,
+#    wls_apps_dir          => $apps_dir,
+#    os_user               => $os_user,
+#    os_group              => $os_group,
+#  }
+
+  file { ["${oracle_base_home_dir}","${middleware_home_dir}","${wls_domains_dir}","${wls_apps_dir}"]:
+    owner  => $os_user,
+    group  => $os_group,
+    mode   => "775",
+    ensure => "directory",
   }
 
   # for performance reasons, download and install or just install it
