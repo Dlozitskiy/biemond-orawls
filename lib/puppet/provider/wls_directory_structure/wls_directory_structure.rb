@@ -16,6 +16,17 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
     Puppet.info "configure oracle folders for #{name}"
 
     Puppet.info "create the following directories: #{oracle_base}, #{ora_inventory}, #{download_folder}"
+    
+    unless domains_dir.nil?
+      make_directory domains_dir
+      ownened_by_oracle domains_dir, user, group
+    end
+
+    unless apps_dir.nil?
+      make_directory apps_dir
+      ownened_by_oracle apps_dir, user, group
+    end
+
     make_directory oracle_base
     ownened_by_oracle oracle_base, user, group
 
@@ -26,15 +37,6 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
     ownened_by_oracle download_folder, user, group
     allow_everybody download_folder
 
-    unless domains_dir.nil?
-      make_directory domains_dir
-      ownened_by_oracle domains_dir, user, group
-    end
-
-    unless apps_dir.nil?
-      make_directory apps_dir
-      ownened_by_oracle apps_dir, user, group
-    end
   end
 
   def make_directory(path)
@@ -44,8 +46,8 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
 
   def ownened_by_oracle(path, user, group)
     Puppet.info "Setting oracle ownership for #{path} with 0775"
-    FileUtils.chmod 0775, path
-    FileUtils.chown user, group, path
+    FileUtils.chmod_R 0775, path
+    FileUtils.chown_R user, group, path
   end
 
   def allow_everybody(path)
