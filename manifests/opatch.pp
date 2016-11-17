@@ -44,11 +44,11 @@ define orawls::opatch(
       $disk1_file = "${source}/${patch_file}"
     }
 
-      if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
-        $oraInstPath = '/etc'
-      } else {
-        $oraInstPath = $orainstpath_dir
-      }
+  if ( $orainstpath_dir == undef or $orainstpath_dir == '' ){
+     $oraInstPath = '/etc'
+  } else {
+     $oraInstPath = $orainstpath_dir
+  }
 
   wls_opatch{"${oracle_product_home_dir}:${patch_id}":
     ensure       => $ensure,
@@ -58,5 +58,4 @@ define orawls::opatch(
     orainst_dir  => $oraInstPath,
     tmp_dir      => $temp_directory,
   }
-
 }
