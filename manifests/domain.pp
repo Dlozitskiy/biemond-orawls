@@ -7,6 +7,7 @@ define orawls::domain (
   $weblogic_home_dir                     = hiera('wls_weblogic_home_dir'), # /opt/oracle/middleware11gR1/wlserver_103
   $middleware_home_dir                   = hiera('wls_middleware_home_dir'), # /opt/oracle/middleware11gR1
   $jdk_home_dir                          = hiera('wls_jdk_home_dir'), # /usr/java/jdk1.7.0_45
+  $wls_projects_dir                      = hiera('wls_projects_dir'),
   $wls_domains_dir                       = hiera('wls_domains_dir'               , undef),
   $wls_apps_dir                          = hiera('wls_apps_dir'                  , undef),
   $domain_template                       = hiera('domain_template'               , 'standard'), # adf|adf_restricted|osb|osb_soa_bpm|osb_soa|soa|soa_bpm|bam|wc|wc_wcc_bpm|oud|ohs_standalone
@@ -67,6 +68,12 @@ define orawls::domain (
     $wls_domains_file_location = '/etc/wls_domains.yaml'
   } else {
     $wls_domains_file_location = $wls_domains_file
+  }
+
+  if ( $wls_projects_dir == undef or $wls_projects_dir == '' ) {
+    $wls_projects_dir = "${middleware_home_dir}/user_projects"
+  } else {
+    $projects_dir =  $wls_projects_dir
   }
 
   if ( $wls_domains_dir == undef or $wls_domains_dir == '' ) {
@@ -434,13 +441,6 @@ define orawls::domain (
       }
     }
 
-    # if !defined(File[$download_dir]) {
-    #   file { $download_dir:
-    #     ensure => directory,
-    #     mode   => '0777',
-    #   }
-    # }
-
     # the utils.py used by the wlst
     if !defined(File["${download_dir}/utils.py"]) {
       file { "${download_dir}/utils.py":
@@ -452,7 +452,6 @@ define orawls::domain (
         mode    => '0775',
         owner   => $os_user,
         group   => $os_group,
-        # require => File[$download_dir],
       }
     }
 
@@ -484,19 +483,15 @@ define orawls::domain (
       require => File["${download_dir}/utils.py"],
     }
 
-    if ( $domains_dir == "${middleware_home_dir}/user_projects/domains"){
-      if !defined(File['weblogic_domain_folder']) {
-          # check oracle install folder
-          file { 'weblogic_domain_folder':
-            ensure  => directory,
-            path    => "${middleware_home_dir}/user_projects",
-            recurse => false,
-            replace => false,
-            mode    => '0775',
-            owner   => $os_user,
-            group   => $os_group,
-          }
-        File['weblogic_domain_folder'] -> File[$domains_dir]
+      if !defined(File[$projects_dir]) {
+      # check oracle install folder
+      file { $projects_dir:
+        ensure  => directory,
+        recurse => false,
+        replace => false,
+        mode    => '0775',
+        owner   => $os_user,
+        group   => $os_group,
       }
     }
 
@@ -509,10 +504,10 @@ define orawls::domain (
         mode    => '0775',
         owner   => $os_user,
         group   => $os_group,
+        require => File[${projects_dir}],
       }
     }
 
-    if $apps_dir != undef {
       if !defined(File[$apps_dir]) {
         # check oracle install folder
         file { $apps_dir:
@@ -522,11 +517,10 @@ define orawls::domain (
           mode    => '0775',
           owner   => $os_user,
           group   => $os_group,
+          require => File[${projects_dir}],
         }
       }
-      # File[$apps_dir] -> Exec["execwlst ${domain_name} ${title}"]
-    }
-
+    
     # FMW RCU only for wls 12.1.2 or higher and when template is not standard
     if ( $version >= 1212 and $domain_template != 'standard' and $domain_template != 'adf_restricted' and $domain_template != 'ohs_standalone' ) {
 
