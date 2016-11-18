@@ -504,7 +504,6 @@ define orawls::domain (
         mode    => '0775',
         owner   => $os_user,
         group   => $os_group,
-        require => File[${projects_dir}],
       }
     }
 
@@ -517,9 +516,10 @@ define orawls::domain (
           mode    => '0775',
           owner   => $os_user,
           group   => $os_group,
-          require => File[${projects_dir}],
         }
       }
+
+      File[$projects_dir] -> File[$domains_dir] -> File[$apps_dir]
     
     # FMW RCU only for wls 12.1.2 or higher and when template is not standard
     if ( $version >= 1212 and $domain_template != 'standard' and $domain_template != 'adf_restricted' and $domain_template != 'ohs_standalone' ) {
