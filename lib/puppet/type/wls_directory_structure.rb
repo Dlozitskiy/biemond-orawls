@@ -21,8 +21,10 @@ module Puppet
         ora_inventory   = resource[:ora_inventory_dir]
         download_folder = resource[:download_dir]
         middleware_home = resource[:ora_middleware_home]
+        temp_folder     = resource[:temp_directory]
 
-        if File.exist?(oracle_base) && File.exist?(ora_inventory) && File.exist?(download_folder) && File.exist?(download_folder)
+
+        if File.exist?(oracle_base) && File.exist?(ora_inventory) && File.exist?(download_folder) && File.exist?(middleware_home) && File.exist?(temp_folder) 
           :present
         else
           :absent
@@ -60,6 +62,17 @@ module Puppet
       validate do |value|
         if value.nil?
           fail ArgumentError, 'ora_middleware_home cannot be empty'
+        end
+      end
+    end
+
+    newparam(:temp_directory) do
+      desc <<-EOT
+        The temp folder.
+      EOT
+      validate do |value|
+        if value.nil?
+          fail ArgumentError, 'Temp folder cannot be empty'
         end
       end
     end
