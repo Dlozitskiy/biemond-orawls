@@ -29,7 +29,6 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
     ownened_by_oracle temp_folder, user, group
 
     make_directory download_folder
-    ownened_by_oracle download_folder, user, group
     allow_everybody download_folder
 
   end
