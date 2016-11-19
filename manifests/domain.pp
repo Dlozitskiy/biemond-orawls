@@ -3,7 +3,7 @@
 # setup a new weblogic domain
 ##
 define orawls::domain (
-  $version_txt                           = hiera('wls_version'                   , 1212),  # 1212|1213|1221|12211
+  $version                               = hiera('wls_version'                   , 1212),  # 1212|1213|1221|12211
   $weblogic_home_dir                     = hiera('wls_weblogic_home_dir'), # /opt/oracle/middleware11gR1/wlserver_103
   $middleware_home_dir                   = hiera('wls_middleware_home_dir'), # /opt/oracle/middleware11gR1
   $jdk_home_dir                          = hiera('wls_jdk_home_dir'), # /usr/java/jdk1.7.0_45
@@ -62,7 +62,6 @@ define orawls::domain (
   $puppet_os_user                        = hiera('puppet_os_user','root'),
 )
 {
-  $version = $version_txt + 0
 
   if ( $wls_domains_file == undef or $wls_domains_file == '' ){
     $wls_domains_file_location = '/etc/wls_domains.yaml'
