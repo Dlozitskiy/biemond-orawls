@@ -105,44 +105,7 @@ define orawls::domain (
   }
 
   if ($continue) {
-    if ( $version == 1036 or $version == 1111 ) {
-      $template          = "${weblogic_home_dir}/common/templates/domains/wls.jar"
-      $templateWS        = "${weblogic_home_dir}/common/templates/applications/wls_webservice.jar"
-      $templateJaxWS     = "${weblogic_home_dir}/common/templates/applications/wls_webservice_jaxws.jar"
-
-      $templateEM        = "${middleware_home_dir}/oracle_common/common/templates/applications/oracle.em_11_1_1_0_0_template.jar"
-      $templateJRF       = "${middleware_home_dir}/oracle_common/common/templates/applications/jrf_template_11.1.1.jar"
-      $templateApplCore  = "${middleware_home_dir}/oracle_common/common/templates/applications/oracle.applcore.model.stub.11.1.1_template.jar"
-      $templateWSMPM     = "${middleware_home_dir}/oracle_common/common/templates/applications/oracle.wsmpm_template_11.1.1.jar"
-
-      $templateOSB          = "${middleware_home_dir}/Oracle_OSB1/common/templates/applications/wlsb.jar"
-      $templateOWSM         = "${middleware_home_dir}/Oracle_OSB1/common/templates/applications/wlsb_owsm.jar"
-      $templateSOAAdapters  = "${middleware_home_dir}/Oracle_OSB1/common/templates/applications/oracle.soa.common.adapters_template_11.1.1.jar"
-      $templateSOA          = "${middleware_home_dir}/Oracle_SOA1/common/templates/applications/oracle.soa_template_11.1.1.jar"
-      $templateBPM          = "${middleware_home_dir}/Oracle_SOA1/common/templates/applications/oracle.bpm_template_11.1.1.jar"
-      $templateBAM          = "${middleware_home_dir}/Oracle_SOA1/common/templates/applications/oracle.bam_template_11.1.1.jar"
-
-    } elsif $version == 1112 {
-      $template          = "${weblogic_home_dir}/common/templates/domains/wls.jar"
-      $templateWS        = "${weblogic_home_dir}/common/templates/applications/wls_webservice.jar"
-
-      $templateEM        = "${middleware_home_dir}/oracle_common/common/templates/applications/oracle.em_11_1_1_0_0_template.jar"
-      $templateJRF       = "${middleware_home_dir}/oracle_common/common/templates/applications/jrf_template_11.1.1.jar"
-      $templateApplCore  = "${middleware_home_dir}/oracle_common/common/templates/applications/oracle.applcore.model.stub.11.1.1_template.jar"
-      $templateWSMPM     = "${middleware_home_dir}/oracle_common/common/templates/applications/oracle.wsmpm_template_11.1.1.jar"
-
-      $templateOIM       = "${middleware_home_dir}/Oracle_IDM1/common/templates/applications/oracle.oim_11.1.2.0.0_template.jar"
-      $templateOAM       = "${middleware_home_dir}/Oracle_IDM1/common/templates/applications/oracle.oam_ds_11.1.2.0.0_template.jar"
-
-      $templateOUD       = "${middleware_home_dir}/Oracle_OUD1/common/templates/applications/oracle.odsm_11.1.1.5.0_template.jar"
-
-      $templateOSB          = "${middleware_home_dir}/Oracle_OSB1/common/templates/applications/wlsb.jar"
-      $templateSOAAdapters  = "${middleware_home_dir}/Oracle_OSB1/common/templates/applications/oracle.soa.common.adapters_template_11.1.1.jar"
-      $templateSOA          = "${middleware_home_dir}/Oracle_SOA1/common/templates/applications/oracle.soa_template_11.1.1.jar"
-      $templateBPM          = "${middleware_home_dir}/Oracle_SOA1/common/templates/applications/oracle.bpm_template_11.1.1.jar"
-      $templateBAM          = "${middleware_home_dir}/Oracle_SOA1/common/templates/applications/oracle.bam_template_11.1.1.jar"
-
-    } elsif $version == 1212 {
+    if $version == 1212 {
       $template          = "${weblogic_home_dir}/common/templates/wls/wls.jar"
       $templateWS        = "${weblogic_home_dir}/common/templates/wls/wls_webservice.jar"
       $templateJaxWS     = "${weblogic_home_dir}/common/templates/wls/wls_webservice_jaxws.jar"
@@ -693,56 +656,6 @@ define orawls::domain (
 
     }
 
-    if $::kernel == 'SunOS' {
-
-      if ($domain_template == 'osb' or
-          $domain_template == 'osb_soa' or
-          $domain_template == 'osb_soa_bpm'){
-
-        exec { "setDebugFlagOnFalse ${domain_name} ${title}":
-          command => "sed -e's/debugFlag=\"true\"/debugFlag=\"false\"/g' ${domain_dir}/bin/setDomainEnv.sh > /tmp/domain.tmp && mv /tmp/domain.tmp ${domain_dir}/bin/setDomainEnv.sh",
-          onlyif  => "/bin/grep debugFlag=\"true\" ${domain_dir}/bin/setDomainEnv.sh | /usr/bin/wc -l",
-          require => [Exec["execwlst ${domain_name} ${title}"],
-                      Exec["execwlst ${domain_name} extension ${title}"],],
-          path    => $exec_path,
-          user    => $os_user,
-          group   => $os_group,
-        }
-
-        exec { "setOSBDebugFlagOnFalse ${domain_name} ${title}":
-          command => "sed -e's/ALSB_DEBUG_FLAG=\"true\"/ALSB_DEBUG_FLAG=\"false\"/g' ${domain_dir}/bin/setDomainEnv.sh > /tmp/domain2.tmp && mv /tmp/domain2.tmp ${domain_dir}/bin/setDomainEnv.sh",
-          onlyif  => "/bin/grep ALSB_DEBUG_FLAG=\"true\" ${domain_dir}/bin/setDomainEnv.sh | /usr/bin/wc -l",
-          require => Exec["setDebugFlagOnFalse ${domain_name} ${title}"],
-          path    => $exec_path,
-          user    => $os_user,
-          group   => $os_group,
-        }
-
-        if ( $owsm_enabled == true ) {
-          exec { "setDERBY_FLAGOnFalse ${domain_name} ${title}":
-            command => "sed -e's/DERBY_FLAG=\"true\"/DERBY_FLAG=\"false\"/g' ${domain_dir}/bin/setDomainEnv.sh > /tmp/domain3.tmp && mv /tmp/domain3.tmp ${domain_dir}/bin/setDomainEnv.sh",
-            onlyif  => "/bin/grep DERBY_FLAG=\"true\" ${domain_dir}/bin/setDomainEnv.sh | /usr/bin/wc -l",
-            require => Exec["setOSBDebugFlagOnFalse ${domain_name} ${title}"],
-            path    => $exec_path,
-            user    => $os_user,
-            group   => $os_group,
-          }
-        } else {
-          exec { "setDERBY_FLAGOnTrue ${domain_name} ${title}":
-            command => "sed -e's/DERBY_FLAG=\"false\"/DERBY_FLAG=\"true\"/g' ${domain_dir}/bin/setDomainEnv.sh > /tmp/domain3.tmp && mv /tmp/domain3.tmp ${domain_dir}/bin/setDomainEnv.sh",
-            onlyif  => "/bin/grep DERBY_FLAG=\"false\" ${domain_dir}/bin/setDomainEnv.sh | /usr/bin/wc -l",
-            require => Exec["setOSBDebugFlagOnFalse ${domain_name} ${title}"],
-            path    => $exec_path,
-            user    => $os_user,
-            group   => $os_group,
-          }
-        }
-
-      }
-
-    } else {
-
-
       if ($domain_template == 'osb' or
           $domain_template == 'osb_soa' or
           $domain_template == 'osb_soa_bpm'){
@@ -785,10 +698,8 @@ define orawls::domain (
             group   => $os_group,
           }
         }
-
       }
-    }
-
+    
     exec { "domain.py ${domain_name} ${title}":
       command => "rm ${download_dir}/domain_${domain_name}.py",
       require => Exec["execwlst ${domain_name} ${title}"],
