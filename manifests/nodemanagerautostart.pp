@@ -15,14 +15,44 @@ define orawls::nodemanagerautostart(
   $trust_keystore_passphrase = undef,
 ){
 
-  $nodeMgrPath    = "${wl_home}/common/nodemanager"
-  $nodeMgrBinPath = "${wl_home}/server/bin"
-  $scriptName     = 'nodemanager'
+  if ( $version == 1111 or $version == 1036 or $version == 1211 ) {
+    
+      $nodeMgrPath    = "${wl_home}/common/nodemanager"
+      $nodeMgrBinPath = "${wl_home}/server/bin"
 
-  if $log_dir == undef {
-    $nodeMgrLckFile = "${nodeMgrPath}/nodemanager.log.lck"
+      $scriptName = "nodemanager_${$version}"
+
+      if $log_dir == undef {
+        $nodeMgrLckFile = "${nodeMgrPath}/nodemanager.log.lck"
+      } else {
+        $nodeMgrLckFile = "${log_dir}/nodemanager.log.lck"
+      }
+
+    } elsif ( $version == 1212 or $version == 1213 or $version >= 1221 ) {
+
+      $nodeMgrPath    = "${domain_path}/nodemanager"
+      $nodeMgrBinPath = "${domain_path}/bin"
+      $scriptName = "nodemanager_${domain}"
+
+      if $log_dir == undef {
+        $nodeMgrLckFile = "${nodeMgrPath}/nodemanager_${domain}.log.lck"
+      } else {
+        $nodeMgrLckFile = "${log_dir}/nodemanager_${domain}.log.lck"
+      }
+
     } else {
-    $nodeMgrLckFile = "${log_dir}/nodemanager.log.lck"
+
+      $nodeMgrPath    = "${wl_home}/common/nodemanager"
+      $nodeMgrBinPath = "${wl_home}/server/bin"
+      $scriptName     = 'nodemanager'
+
+      if $log_dir == undef {
+        $nodeMgrLckFile = "${nodeMgrPath}/nodemanager.log.lck"
+      } else {
+        $nodeMgrLckFile = "${log_dir}/nodemanager.log.lck"
+      }
+
+    }
   }
 
   if $custom_trust == true {
