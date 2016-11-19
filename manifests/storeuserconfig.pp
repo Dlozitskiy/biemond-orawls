@@ -14,7 +14,7 @@ define orawls::storeuserconfig (
   $os_user                    = hiera('wls_os_user'), # oracle
   $os_group                   = hiera('wls_os_group'), # dba
   $download_dir               = hiera('wls_download_dir'), # /data/install
-  $log_output                 = false,                                           # true|false
+  $log_output                 = hiera('log_output',false),                                           # true|false
 )
 {
   # the py script used by the wlst*-
