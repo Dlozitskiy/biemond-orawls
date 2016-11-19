@@ -51,8 +51,6 @@ define orawls::nodemanagerautostart(
       } else {
         $nodeMgrLckFile = "${log_dir}/nodemanager.log.lck"
       }
-
-    }
   }
 
   if $custom_trust == true {
