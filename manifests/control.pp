@@ -18,7 +18,7 @@ define orawls::control (
   $adminserver_address         = hiera('domain_adminserver_address'    , 'localhost'),
   $adminserver_port            = hiera('domain_adminserver_port'       , 7001),
   $adminserver_secure_listener = false,
-  $nodemanager_secure_listener = true,
+  $nodemanager_secure_listener = hiera('nodemanager_secure_listener'   , false),
   $nodemanager_port            = hiera('domain_nodemanager_port'       , 5556),
   $action                      = 'start', # start|stop
   $weblogic_user               = hiera('wls_weblogic_user'             , 'weblogic'),
