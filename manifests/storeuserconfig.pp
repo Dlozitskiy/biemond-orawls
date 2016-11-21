@@ -8,7 +8,7 @@ define orawls::storeuserconfig (
   $jdk_home_dir               = hiera('wls_jdk_home_dir'),      # /usr/java/jdk1.7.0_45
   $adminserver_address        = hiera('domain_adminserver_address', 'localhost'),
   $adminserver_port           = hiera('domain_adminserver_port'   , 7001),
-  $user_config_dir            = undef,                                           #'/home/oracle',
+  $user_config_dir            = hiera('wls_os_user_home'          , undef),                                           #'/home/oracle',
   $weblogic_user              = hiera('wls_weblogic_user'         , 'weblogic'),
   $weblogic_password          = hiera('domain_wls_password'),
   $os_user                    = hiera('wls_os_user'), # oracle
