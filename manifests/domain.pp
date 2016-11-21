@@ -21,7 +21,7 @@ define orawls::domain (
   $adminserver_machine_name              = hiera('domain_adminserver_machine_name', 'LocalMachine'),
   $adminserver_address                   = hiera('domain_adminserver_address'     , undef),
   $adminserver_port                      = hiera('domain_adminserver_port'        , 7001),
-  $adminserver_ssl_port                  = undef,
+  $adminserver_ssl_port                  = hiera('domain_adminserver_ssl_port'    , 7002),
   $adminserver_listen_on_all_interfaces  = false,  # for docker etc
   $java_arguments                        = hiera('domain_java_arguments'         , {}),         # java_arguments = { "ADM" => "...", "OSB" => "...", "SOA" => "...", "BAM" => "..."}
   $nodemanager_address                   = undef,
