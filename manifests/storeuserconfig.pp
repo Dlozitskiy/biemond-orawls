@@ -33,7 +33,7 @@ define orawls::storeuserconfig (
   $exec_path   = "${jdk_home_dir}/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:"
 
   exec { "execwlst ${title}storeUserConfig.py":
-    command     => "${javaCommand} ${download_dir}/${title}storeUserConfig.py ${weblogic_password}",
+    command     => ". ${weblogic_home_dir}/server/bin/setWLSEnv.sh && ${javaCommand} ${download_dir}/${title}storeUserConfig.py ${weblogic_password}",
     environment => ["CLASSPATH=${weblogic_home_dir}/server/lib/weblogic.jar", "JAVA_HOME=${jdk_home_dir}"],
     unless      => "ls -l ${user_config_dir}/${os_user}-${domain_name}-WebLogicConfig.properties",
     path        => $exec_path,
